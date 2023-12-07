@@ -12,15 +12,10 @@
 </div>
 
 <script type="module">
+const viewerParam = JSON.parse(ioDevice.getViewerParam());
 const bimdataViewer = makeBIMDataViewer({
-api: {
-  modelIds: [15097],
-  cloudId: 10344,
-  projectId: 237466,
-  accessToken: "TAbdyPzoQeYgVSMe4GUKoCEfYctVhcwJ",
-},
+    api: viewerParam,
 });
-
 const vm = bimdataViewer.mount("#app");
 </script>
 </body>
