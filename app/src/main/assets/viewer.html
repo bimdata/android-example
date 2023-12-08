@@ -2,8 +2,18 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>BIMDataViewer - Quick start</title>
-    <script src="file:///android_asset/viewer-1.10.3.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -12,11 +22,55 @@
 </div>
 
 <script type="module">
-const viewerParam = JSON.parse(ioDevice.getViewerParam());
+import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.0.0.js";
+const viewerParams = JSON.parse(ioDevice.getViewerParams());
 const bimdataViewer = makeBIMDataViewer({
-    api: viewerParam,
+    api: viewerParams,
+    ui: {
+        menuVisible: false,
+        windowManager: false,
+        version: false,
+        bimdataLogo: false,
+    },
+    plugins: {
+        bcf: false,
+        bcfManager: false,
+        "structure-properties": false,
+        measure3d: false,
+        smartview: false,
+        search: false,
+        section: false,
+        fullscreen: false,
+        projection: false,
+        "viewer2d-screenshot": false,
+        measure2d: false,
+        viewer3d: {
+            enableDTX: true,
+            home: false,
+            help: false,
+            modelLoader: "hidden",
+            navigationVersionsModel: false,
+        },
+        viewer2d: {
+            help: false,
+            modelLoader: "hidden",
+            compass: false,
+        }
+    },
 });
-const vm = bimdataViewer.mount("#app");
+const vm = await bimdataViewer.mount("#app", {
+  ratios: [30, 70],
+  direction: "column",
+  children: ["2d", "3d"],
+});
+
+vm.$viewer.state.hub.on("objects-selected", ({objects}) => {
+    const message = {
+        key: "objectSelection",
+        objectUuids: objects.map(obj => obj.uuid),
+    };
+    ioDevice.postMessage(JSON.stringify(message));
+});
 </script>
 </body>
 </html>

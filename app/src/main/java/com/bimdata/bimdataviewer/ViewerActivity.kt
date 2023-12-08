@@ -4,8 +4,12 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewClientCompat
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -16,16 +20,33 @@ class ViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_viewer)
 
-        val webViewer= findViewById<WebView>(R.id.viewer)
-        webViewer.settings.javaScriptEnabled = true;
+        val webView = findViewById<WebView>(R.id.viewer)
+        webView.settings.javaScriptEnabled = true
+        // Enable localStorage
+        webView.settings.domStorageEnabled = true
+
+        // JS can't be loaded from file:// because of CORS
+        //
+        val assetLoader: WebViewAssetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
+            .build()
+
+        webView.webViewClient = object : WebViewClientCompat() {
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest
+            ): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(request.url)
+            }
+        }
 
         class JsObject {
             @JavascriptInterface
             fun postMessage(message: String) {
-                Log.w("WTF", "Got message" + message)
+                Log.d("WebViewMessage", "Got message from webview " + message)
             }
             @JavascriptInterface
-            fun getViewerParam() : String {
+            fun getViewerParams() : String {
                 val viewerParams = JSONObject()
                 viewerParams.put("projectId", 237466)
                 viewerParams.put("cloudId", 10344)
@@ -37,13 +58,10 @@ class ViewerActivity : AppCompatActivity() {
                 return viewerParams.toString()
             }
         }
+        webView.addJavascriptInterface(JsObject(), "ioDevice")
 
-        // And when initializing the webview...
-        webViewer.addJavascriptInterface(JsObject(), "ioDevice")
 
-        webViewer.loadUrl("file:///android_asset/viewer.html");
-
-        //webViewer.evaluateJavascript("loadViewer(" + viewerParams.toString() + ")", null);
+        webView.loadUrl("https://appassets.androidplatform.net/assets/viewer.html");
 
     }
 }
