@@ -48,21 +48,25 @@ class ViewerActivity : AppCompatActivity() {
             @JavascriptInterface
             fun getViewerParams() : String {
                 val viewerParams = JSONObject()
-                viewerParams.put("projectId", 237466)
                 viewerParams.put("cloudId", 10344)
+                viewerParams.put("projectId", 237466)
+                viewerParams.put("accessToken", "TAbdyPzoQeYgVSMe4GUKoCEfYctVhcwJ")
 
                 val modelIds = JSONArray()
                 modelIds.put(15097)
                 viewerParams.put("modelIds", modelIds)
-                viewerParams.put("accessToken", "TAbdyPzoQeYgVSMe4GUKoCEfYctVhcwJ")
+
+                val offline = JSONObject()
+                offline.put("enabled", true)
+                offline.put("dataFile", "https://appassets.androidplatform.net/assets/offline-package.zip")
+                viewerParams.put("offline", offline)
+
                 return viewerParams.toString()
             }
         }
         webView.addJavascriptInterface(JsObject(), "ioDevice")
 
-
-        webView.loadUrl("https://appassets.androidplatform.net/assets/viewer.html");
-
+        webView.loadUrl("https://appassets.androidplatform.net/assets/viewer.html")
     }
 }
 
