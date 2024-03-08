@@ -21,13 +21,17 @@
 </div>
 
 <script type="module">
-import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.0.0.js";
+import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.1.0-beta.1.js";
+import { b64toBlob } from "https://appassets.androidplatform.net/assets/utils.js";
 
-const viewerParams = JSON.parse(ioDevice.getViewerParams());
+const apiConfig = JSON.parse(jsInterface.getViewerApiConfig());
+
+const blob = b64toBlob(apiConfig.offline.dataFile, "application/zip");
+apiConfig.offline.dataFile = blob;
 
 (async () => {
     const bimdataViewer = makeBIMDataViewer({
-        api: viewerParams,
+        api: apiConfig,
         ui: {
             menuVisible: false,
             windowManager: false,
@@ -73,7 +77,7 @@ const viewerParams = JSON.parse(ioDevice.getViewerParams());
             key: "objectSelection",
             objectUuids: objects.map(obj => obj.uuid),
         };
-        ioDevice.postMessage(JSON.stringify(message));
+        jsInterface.postMessage(JSON.stringify(message));
     });
 })();
 </script>

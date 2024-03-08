@@ -12,6 +12,9 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
+import java.nio.file.Files
+import java.util.Base64
 
 
 class ViewerActivity : AppCompatActivity() {
@@ -25,8 +28,7 @@ class ViewerActivity : AppCompatActivity() {
         // Enable localStorage
         webView.settings.domStorageEnabled = true
 
-        // JS can't be loaded from file:// because of CORS
-        //
+        // An asset loader is needed because JS can't be loaded from file:// because of CORS
         val assetLoader: WebViewAssetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
             .build()
@@ -45,26 +47,33 @@ class ViewerActivity : AppCompatActivity() {
             fun postMessage(message: String) {
                 Log.d("WebViewMessage", "Got message from webview " + message)
             }
+
             @JavascriptInterface
-            fun getViewerParams() : String {
-                val viewerParams = JSONObject()
-                viewerParams.put("cloudId", 10344)
-                viewerParams.put("projectId", 237466)
-                viewerParams.put("accessToken", "TAbdyPzoQeYgVSMe4GUKoCEfYctVhcwJ")
+            fun getViewerApiConfig(): String {
+                val apiConfig = JSONObject()
+                apiConfig.put("cloudId", 10344)
+                apiConfig.put("projectId", 237466)
+                apiConfig.put("accessToken", "TAbdyPzoQeYgVSMe4GUKoCEfYctVhcwJ")
 
                 val modelIds = JSONArray()
                 modelIds.put(15097)
-                viewerParams.put("modelIds", modelIds)
+                apiConfig.put("modelIds", modelIds)
+
+                val dataFile = File(getExternalFilesDir("Viewer"), "offline-package.zip")
+                val dataBytes = Files.readAllBytes(dataFile.toPath())
+                val dataBase64 = Base64.getEncoder().encodeToString(dataBytes)
 
                 val offline = JSONObject()
                 offline.put("enabled", true)
-                offline.put("dataFile", "https://appassets.androidplatform.net/assets/offline-package.zip")
-                viewerParams.put("offline", offline)
+                // offline.put("dataFile", "https://appassets.androidplatform.net/assets/offline-package.zip")
+                offline.put("dataFile", dataBase64)
+                apiConfig.put("offline", offline)
 
-                return viewerParams.toString()
+                return apiConfig.toString()
             }
         }
-        webView.addJavascriptInterface(JsObject(), "ioDevice")
+
+        webView.addJavascriptInterface(JsObject(), "jsInterface")
 
         webView.loadUrl("https://appassets.androidplatform.net/assets/viewer.html")
     }
