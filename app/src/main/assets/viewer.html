@@ -3,16 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>BIMDataViewer - Quick start</title>
+    <title>BIMDataViewer</title>
     <style>
-        *,
-        *::before,
-        *::after {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
     </style>
 </head>
 <body>
@@ -21,48 +18,45 @@
 </div>
 
 <script type="module">
-import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.1.0-beta.1.js";
-import { b64toBlob } from "https://appassets.androidplatform.net/assets/utils.js";
+import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.1.1-beta.3.js";
 
 const apiConfig = JSON.parse(jsInterface.getViewerApiConfig());
-
-const blob = b64toBlob(apiConfig.offline.dataFile, "application/zip");
-apiConfig.offline.dataFile = blob;
 
 (async () => {
     const bimdataViewer = makeBIMDataViewer({
         api: apiConfig,
         ui: {
-            menuVisible: false,
-            windowManager: false,
-            version: false,
             bimdataLogo: false,
+            header: false,
+            version: false,
+            windowManager: false,
         },
         plugins: {
             bcf: false,
             bcfManager: false,
-            "structure-properties": false,
+            fullscreen: false,
+            measure2d: false,
             measure3d: false,
-            smartview: false,
+            projection: false,
             search: false,
             section: false,
-            fullscreen: false,
-            projection: false,
+            smartview: false,
+            "structure-properties": false,
+            viewer2d: {
+                compass: false,
+                help: false,
+                modelLoader: "hidden",
+                storeySelectorAutoOpen: false,
+            },
             "viewer2d-screenshot": false,
-            measure2d: false,
             viewer3d: {
                 enableDTX: true,
-                home: false,
+                enableDynamicLOD: true,
                 help: false,
+                home: false,
                 modelLoader: "hidden",
                 navigationVersionsModel: false,
             },
-            viewer2d: {
-                help: false,
-                modelLoader: "hidden",
-                compass: false,
-                storeySelectorAutoOpen: false,
-            }
         },
     });
 

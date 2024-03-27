@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>BIMDataViewer (Offline 1)</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<div style="height: 100vh;">
+    <div id="app"></div>
+</div>
+
+<script type="module">
+import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.1.1-beta.3.js";
+
+const apiConfig = JSON.parse(jsInterface.getViewerApiConfig());
+
+(async () => {
+    const bimdataViewer = makeBIMDataViewer({
+        api: apiConfig,
+        ui: {
+            bimdataLogo: false,
+            header: false,
+            version: false,
+            windowManager: false,
+        },
+        plugins: {
+            bcf: false,
+            bcfManager: false,
+            fullscreen: false,
+            measure3d: false,
+            projection: false,
+            search: false,
+            section: false,
+            smartview: false,
+            "structure-properties": false,
+            viewer3d: {
+                enableDTX: true,
+                enableDynamicLOD: true,
+                help: false,
+                home: false,
+                modelLoader: "hidden",
+                navigationVersionsModel: false,
+            },
+        },
+    });
+
+    const vm = await bimdataViewer.mount("#app", "3d");
+})();
+</script>
+</body>
+</html>

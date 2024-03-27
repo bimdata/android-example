@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>BIMDataViewer (Offline 2)</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<div style="height: 100vh;">
+    <div id="app"></div>
+</div>
+
+<script type="module">
+import makeBIMDataViewer from "https://appassets.androidplatform.net/assets/viewer-2.1.1-beta.3.js";
+
+/**
+ * Convert a base64 string into a Blob.
+ * (source: https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript)
+ */
+function b64toBlob(b64Data, contentType="", sliceSize=512) {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
+}
+
+const apiConfig = JSON.parse(jsInterface.getViewerApiConfig());
+
+const blob = b64toBlob(apiConfig.offline.data, "application/zip");
+apiConfig.offline.data = blob;
+
+(async () => {
+    const bimdataViewer = makeBIMDataViewer({
+        api: apiConfig,
+        ui: {
+            bimdataLogo: false,
+            header: false,
+            version: false,
+            windowManager: false,
+        },
+        plugins: {
+            bcf: false,
+            bcfManager: false,
+            fullscreen: false,
+            measure3d: false,
+            projection: false,
+            search: false,
+            section: false,
+            smartview: false,
+            "structure-properties": false,
+            viewer3d: {
+                enableDTX: true,
+                enableDynamicLOD: true,
+                help: false,
+                home: false,
+                modelLoader: "hidden",
+                navigationVersionsModel: false,
+            },
+        },
+    });
+
+    const vm = await bimdataViewer.mount("#app", "3d");
+})();
+</script>
+</body>
+</html>

@@ -12,9 +12,6 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
-import java.nio.file.Files
-import java.util.Base64
 
 
 class ViewerActivity : AppCompatActivity() {
@@ -25,8 +22,7 @@ class ViewerActivity : AppCompatActivity() {
 
         val webView = findViewById<WebView>(R.id.viewer)
         webView.settings.javaScriptEnabled = true
-        // Enable localStorage
-        webView.settings.domStorageEnabled = true
+        webView.settings.domStorageEnabled = true // Enable localStorage
 
         // An asset loader is needed because JS can't be loaded from file:// because of CORS
         val assetLoader: WebViewAssetLoader = WebViewAssetLoader.Builder()
@@ -44,11 +40,6 @@ class ViewerActivity : AppCompatActivity() {
 
         class JsObject {
             @JavascriptInterface
-            fun postMessage(message: String) {
-                Log.d("WebViewMessage", "Got message from webview " + message)
-            }
-
-            @JavascriptInterface
             fun getViewerApiConfig(): String {
                 val apiConfig = JSONObject()
                 apiConfig.put("cloudId", 10344)
@@ -59,17 +50,12 @@ class ViewerActivity : AppCompatActivity() {
                 modelIds.put(15097)
                 apiConfig.put("modelIds", modelIds)
 
-                val dataFile = File(getExternalFilesDir("Viewer"), "offline-package.zip")
-                val dataBytes = Files.readAllBytes(dataFile.toPath())
-                val dataBase64 = Base64.getEncoder().encodeToString(dataBytes)
-
-                val offline = JSONObject()
-                offline.put("enabled", true)
-                // offline.put("dataFile", "https://appassets.androidplatform.net/assets/offline-package.zip")
-                offline.put("dataFile", dataBase64)
-                apiConfig.put("offline", offline)
-
                 return apiConfig.toString()
+            }
+
+            @JavascriptInterface
+            fun postMessage(message: String) {
+                Log.d("WebViewMessage", "Got message from webview: $message")
             }
         }
 
